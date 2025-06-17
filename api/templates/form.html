@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Face Verification</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    video, canvas {
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      margin-bottom: 15px;
+    }
+
+    #captureBtn {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      text-align: center;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #captureBtn:hover {
+      background-color: #45a049;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Face Verification</h1>
+
+  <video id="video" width="320" height="240" autoplay></video>
+  <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+
+  <button id="captureBtn">📸 Capture & Submit</button>
+
+  <div id="status"></div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const statusDiv = document.getElementById('status');
+
+    // Ask for webcam access
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        console.error("Camera error:", err);
+        statusDiv.textContent = "❌ Camera access denied.";
+        statusDiv.style.color = "red";
+      });
+
+    captureBtn.addEventListener('click', async () => {
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const base64Image = canvas.toDataURL('image/jpeg');
+
+      try {
+        const res = await fetch('/verify-face', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ image: base64Image })
+        });
+
+        const data = await res.json();
+        if (data.status === 'success') {
+          statusDiv.textContent = `✅ Saved as ${data.filename}`;
+          statusDiv.style.color = "green";
+        } else {
+          statusDiv.textContent = "❌ Upload failed.";
+          statusDiv.style.color = "red";
+        }
+
+      } catch (err) {
+        console.error("Submit failed:", err);
+        statusDiv.textContent = "❌ Network error.";
+        statusDiv.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
