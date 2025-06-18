@@ -39,8 +39,10 @@ opt_einsum==3.4.0
 optree==0.16.0
 packaging==25.0
 pandas==2.3.0
+pgvector==0.4.1
 pillow==11.2.1
 protobuf==5.29.5
+psycopg2-binary==2.9.10
 Pygments==2.19.1
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
@@ -55,6 +57,7 @@ tensorboard==2.19.0
 tensorboard-data-server==0.7.2
 tensorflow==2.19.0
 termcolor==3.1.0
+tf_keras==2.19.0
 tqdm==4.67.1
 typing_extensions==4.14.0
 tzdata==2025.2
